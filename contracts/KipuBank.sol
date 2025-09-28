@@ -85,12 +85,15 @@ contract KipuBank {
     //  |      MODIFIERS      |
     //  |_____________________|
 
-
+    /// @notice Verifica que la dirección tenga saldo suficiente para realizar la operación
+    /// @param _monto    Monto en wei
     modifier soloDireccionesConSaldo(uint256 _monto) {
         if (balances[msg.sender] < _monto) revert KipuBank_SaldoInsuficiente(msg.sender, _monto); 
         _;
     }
 
+    /// @notice Verifica que el monto sea mayor a cero
+    /// @param _monto    Monto en wei
     modifier soloMontosMayoresACero(uint256 _monto) {
         if (_monto == 0) revert KipuBank_MontoCero();
         _;
