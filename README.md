@@ -1,65 +1,105 @@
-# KipuBank
+# KipuBankV2
 
-Bóveda de ETH con límite por transacción y límite global.
+Vault for ETH and USDC with per-transaction and global limits in USD.
 
-## Características
-- Depósitos y retiros de ETH por usuario
-- Límite por transacción: `retiroCap` (inmutable)
-- Límite global del banco: `bankCap` (inmutable)
-- Errores personalizados, eventos, checks-effects-interactions
-- Consulta de saldo personal
+## Features
+- ETH and USDC deposits and withdrawals per user
+- Withdrawal limit (`withdrawCap`, `immutable`)
+- Global bank limit (`bankCap`, `immutable`, in USD)
+- Custom errors and detailed events
+- Safe design pattern: checks → effects → interactions
+- Personal balance and total bank queries
+- Blacklist system for restricted addresses
+- Chainlink ETH/USD price feed integration (Sepolia)
 
-## Despliegue (Remix, Metamask, SepoliaETH)
+## Deployment (Remix, Metamask, SepoliaETH)
 
 ### Constructor
 
 ```solidity
-/// @param _retiroCap   Límite por transacción para retirar em wei.
-/// @param _bankCap     Límite global máximo que puede custodiar el banco en wei.
-constructor(uint256 _retiroCap, uint256 _bankCap) {
-    ...
-}
+/// @param _owner        Initial owner address
+/// @param _feed         Chainlink ETH/USD feed (Sepolia)
+/// @param _usdc         USDC token address
+/// @param _withdrawCapUsd  Max withdrawal per transaction (in USD, 6 decimals)
+/// @param _bankCapUsd      Max total USD capacity of the bank (in USD, 6 decimals)
+constructor(
+    address _owner,
+    address _feed,
+    address _usdc,
+    uint256 _withdrawCapUsd,
+    uint256 _bankCapUsd
+)
+
+```
+Example parameters
+
+```solidity
+_owner         = 0xYourWalletAddress
+_feed          = 0x694AA1769357215DE4FAC081bf1f309aDC325306  // ETH/USD Chainlink Feed
+_usdc          = 0xf08a50178dfcde18524640ea6618a1f965821715  // USDC (Sepolia)
+_withdrawCapUsd = 5000000000   // 5,000 USD (6 decimals)
+_bankCapUsd     = 100000000000 // 100,000 USD (6 decimals)
 ```
 
 ### Remix
 
-- Conectar Metamask: 
-- - Deploy & Run Transactions -> Environment -> Injected Provider - Metamask
+- Connect MetaMask: 
+- - Deploy & Run Transactions → Environment → Injected Provider - MetaMask
 
+- Compile:
 
-- Compilar contrato:
-
-- - Pestaña Solidity Compiler -> elegir versión 0.8.24 (o superior) -> Compile KipuBank.sol
+- - Solidity Compiler tab -> Select version 0.8.24 or higher -> Click Compile KipuBankV2.sol
 
 - Deploy:
 
-- - En Deploy ingresar argumentos del constructor, ej.:
+- - In Deploy & Run Transactions, fill in the constructor parameters above.
+- - Click Deploy.
+- - Confirm the transaction in MetaMask.
 
+## Interacting with the Contract (Remix + MetaMask + Sepolia)
+
+### Deposit ETH:
+
+- En la parte de arriba de la de Remix hay un campo que dice Value.
+- At the top of `Deploy & run transactions` in Remix, in the Value field, enter the amount of ETH/gwei/wei you want to deposit (e.g., 1 ETH).
+- Click the depositETH button (red).
+- Confirm in MetaMask.
+
+*The event KipuBankV2_DepositSuccess will appear in the Remix console.*
+
+### Deposit USDC:
+
+- Call
 ```solidity
-// Ingresar en wei
-// 1 ether, 5 ether
-1000000000000000000, 5000000000000000000
+depositUSDC(<amount>); deposits 100 USDC (since USDC has 6 decimals).
 ```
 
-- - Confirmar en Metamask
+*The event KipuBankV2_DepositSuccess will appear in the Remix console.*
 
-## Interactuar con el contrato (Remix, Metamask, SepoliaETH)
+### Withdraw ETH:
 
-### Depositar:
+- Enter the amount to withdraw in wei in `withdrawETH(uint256 _weiAmount)`.
+- Click Transact.
+- Confirm in MetaMask.
 
-- En la parte de arriba de la pestaña `Deploy & run transactions` de Remix hay un campo que dice Value.
-- Poné ahí cuánto querés mandar. Ejemplo: 1 eth.
-- Clic en el botón rojo depositar.
-- Confirmá en Metamask.
+*If successful, the event KipuBankV2_WithdrawalSuccess will be emitted.*
 
-### Retirar:
+### Withdraw USDC:
 
-- En el campo de `retirar(uint256 monto)` poné el monto en wei.
-- Clic en Transact.
-- Confirmá en Metamask.
+- Enter the amount to withdraw in USDC in `withdrawUSDC(uint256 _usdcAmount)`.
+- Click Transact.
+- Confirm in MetaMask.
 
-### Consultar:
+*If successful, the event KipuBankV2_WithdrawalSuccess will be emitted.*
 
-- Clic en consultarSaldo() para ver tu balance en el banco.
-- Clic en totalDepositos() y totalRetiros() para ver estadísticas.
-- Clic en bankCap() y retiroCap() para ver los umbrales.
+### Check Balances and Stats:
+
+| Action            | Function               | Returns                             |
+| ----------------- | ---------------------- | ----------------------------------- |
+| View ETH balance  | `getEthBalance()`      | Balance in wei                      |
+| View USDC balance | `getUsdcBalance()`     | Balance in 6-decimals               |
+| View total in USD | `getTotalUsdBalance()` | Total ETH (converted to USD) + USDC |
+| Total deposits    | `totalDeposits()`      | Number of successful deposits       |
+| Total withdrawals | `totalWithdrawals()`   | Number of successful withdrawals    |
+| Bank cap          | `i_bankCap()`          | Global USD limit                    |
+| Withdrawal cap    | `i_withdrawCap()`      | Per-transaction USD limit           |
