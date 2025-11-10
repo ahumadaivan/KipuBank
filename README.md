@@ -7,8 +7,8 @@ A vault that converts deposits (ETH or ERC20) into USDC using Uniswap V2.
   * Allows depositing ETH and any ERC20 token (via Uniswap V2).
   * **All deposits are converted and stored as USDC.**
   * Withdrawals are only in **USDC**.
-  * Per-transaction withdrawal limit: `i_withdrawCap` (in **USDC units**, 6 decimals).
-  * Global bank limit: `i_bankCap` (in **USDC units**, 6 decimals).
+  * Per-transaction withdrawal limit: `i_withdrawCap` (in **USDC units**, 18 decimals).
+  * Global bank limit: `i_bankCap` (in **USDC units**, 18 decimals).
   * Custom errors, events, checks-effects-interactions.
   * Personal balance query (in USDC).
 
@@ -20,8 +20,8 @@ A vault that converts deposits (ETH or ERC20) into USDC using Uniswap V2.
 /// @param _owner               The owner's address (your Metamask)
 /// @param _router              Uniswap V2 Router address
 /// @param _usdc                USDC token address
-/// @param _withdrawalCapUsd    Withdrawal limit per transaction (in USDC units, 6 decimals)
-/// @param _bankCapUsd          Global bank limit (in USDC units, 6 decimals)
+/// @param _withdrawalCapUsd    Withdrawal limit per transaction (in USDC units, 18 decimals)
+/// @param _bankCapUsd          Global bank limit (in USDC units, 18 decimals)
 constructor(
     address _owner,
     address payable _router,
@@ -52,8 +52,8 @@ constructor(
     _owner: (Your Metamask address auto-fills if you leave this blank)
     _router: 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3
     _usdc: 0xbe72E441BF55620febc26715db68d3494213D8Cb
-    _withdrawalCapUsd: 1000000000 (e.g., 1,000 USDC)
-    _bankCapUsd: 10000000000 (e.g., 10,000 USDC)
+    _withdrawalCapUsd: 100000000000000000000   // 100 USDC(test)
+    _bankCapUsd:       1000000000000000000000  // 1000 USDC(test)
     ```
 
       * Confirm in Metamask.
@@ -97,15 +97,15 @@ This is a **two-step process**:
   * Find the `depositToken` function.
       * `tokenIn`: The address of the token you are depositing (e.g., `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238` for USDC).
       * `amountIn`: The amount (in the token's smallest unit).
-          * *Example for 10 USDC (6 decimals):* `10000000`
+          * *Example for 10 USDC (18 decimals):* `10000000000000000000`
       * `amountOutMin`: `0` (this is fine for testing).
       * `deadline`: A future timestamp. (Search "Unix timestamp" on Google and copy the number).
   * Click `transact` and confirm in Metamask.
 
 ### Withdraw (always in USDC)
 
-  * In the `withdrawUSDC(uint256 _usdcAmount)` field, enter the amount in **USDC units (6 decimals)**.
-      * *Example for 10 USDC:* `10000000`
+  * In the `withdrawUSDC(uint256 _usdcAmount)` field, enter the amount in **USDC units (18 decimals)**.
+      * *Example for 10 USDC:* `10000000000000000000`
   * Click `transact`.
   * Confirm in Metamask.
 
