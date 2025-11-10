@@ -51,7 +51,7 @@ constructor(
     ```text
     _owner: (Your Metamask address auto-fills if you leave this blank)
     _router: 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3
-    _usdc: 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
+    _usdc: 0xbe72E441BF55620febc26715db68d3494213D8Cb
     _withdrawalCapUsd: 1000000000 (e.g., 1,000 USDC)
     _bankCapUsd: 10000000000 (e.g., 10,000 USDC)
     ```
@@ -114,3 +114,16 @@ This is a **two-step process**:
   * Click `getUsdcBalance()` to see your balance in the bank (in USDC units).
   * Click `totalDeposits()` and `totalWithdrawals()` to see statistics.
   * Click `i_bankCap()` and `i_withdrawCap()` to see the thresholds (in USDC units).
+
+## Design Decisions & Trade-offs
+
+* **All to USDC:**
+    * **Pro:** The vault is stable and unaffected by market volatility.
+    * **Con:** The user doesn't benefit if their deposited token (e.g., ETH) goes up in price. The user also pays the swap slippage cost.
+
+* **Fixed Caps (`i_bankCap`, `i_withdrawCap`):**
+    * **Pro:** They protect the contract. The global cap (`i_bankCap`) limits the "blast radius" of a hack, and the withdrawal cap (`i_withdrawCap`) slows an attacker down.
+    * **Con:** They are `immutable`. To raise or lower them, you must deploy an entirely new contract.
+
+* **Owner Control (Router & Blacklist):**
+    * **Pro:** The owner can update the Uniswap router if needed and block malicious addresses.
