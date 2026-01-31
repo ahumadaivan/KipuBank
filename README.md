@@ -1,4 +1,4 @@
-# KipuBankV2
+# KipuBank V2
 
 Vault for ETH and USDC with per-transaction and global limits in USD.
 
